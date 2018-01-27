@@ -3,8 +3,6 @@ using FluentAssertions;
 using NUnit.Framework;
 using System;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 
 namespace API.TestFramework
 {
@@ -35,23 +33,27 @@ namespace API.TestFramework
         [Test]
         public void CreateBlogPost()
         {           
-            var blogTitle = "my awesome post";
+            var data = new { userId = 1, title = "my awesome post", body = "this is my awesome post!" };           
+            _client.Content = data.AsJson();
             _client.Method = Method.POST;
-            _client.Content = new StringContent($"{{\"userId\": 1, \"title\": \"{blogTitle}\", \"body\": \"this is my awesome post!\"}}", Encoding.UTF8, "application/json");
             var response = _client.Request($"/posts");
             string blogId = response.id.ToString();
-            blogId.Should().NotBeEmpty();            
+            blogId.Should().NotBeEmpty();
         }
 
         [Test]
         public void UpdateBlogPost()
         {
-            var blogTitle = "my awesome post";
+            var blogTitle = "my awesome updated post";
+            var blogDetails = "this is my awesome updated post!";
+            var data = new { userId = 1, title = blogTitle, body = blogDetails };
+            _client.Content = data.AsJson();
             _client.Method = Method.PUT;
-            _client.Content = new StringContent($"{{\"userId\": 1, \"title\": \"{blogTitle}\", \"body\": \"this is my awesome post!\"}}", Encoding.UTF8, "application/json");
             var response = _client.Request($"/posts/1");
             string title = response.title.ToString();
             title.Should().Be(blogTitle);
+            string details = response.body.ToString();
+            details.Should().Be(blogDetails);
         }
 
         [Test]
