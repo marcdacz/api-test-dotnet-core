@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -8,55 +7,41 @@ namespace API.TestFramework.Environment
 {
     public class Client
     {
-        public Method Method { get; set; }
-        public ByteArrayContent Content { get; set; }
-        public Uri BaseAddress { get; set; }
+        private HttpClient _httpClient;
 
-        public Client()
-        {
-            Method = Method.GET;
-            Content = null;
-        }
-
-        public dynamic Request(string endpoint)
+        public Client(Uri baseAddress)
         {
             var cookieContainer = new CookieContainer();
             var handler = new HttpClientHandler
             {
                 CookieContainer = cookieContainer
             };
-            var httpClient = new HttpClient(handler)
+            _httpClient = new HttpClient(handler)
             {
-                BaseAddress = BaseAddress
+                BaseAddress = baseAddress
             };
+        }
+
+        public ClientResponse Request(string endpoint, ClientMethod method = ClientMethod.GET, ByteArrayContent content = null)
+        {
             Task<HttpResponseMessage> httpResponse = null;
-            var response = string.Empty;
-            switch (Method)
+            switch (method)
             {
-                case Method.GET:
-                    httpResponse = httpClient.GetAsync(endpoint);
+                case ClientMethod.GET:
+                    httpResponse = _httpClient.GetAsync(endpoint);
                     break;
-                case Method.POST:
-                    httpResponse = httpClient.PostAsync(endpoint, Content);
+                case ClientMethod.POST:
+                    httpResponse = _httpClient.PostAsync(endpoint, content);
                     break;
-                case Method.PUT:
-                    httpResponse = httpClient.PutAsync(endpoint, Content);
+                case ClientMethod.PUT:
+                    httpResponse = _httpClient.PutAsync(endpoint, content);
                     break;
-                case Method.DELETE:
-                    httpResponse = httpClient.DeleteAsync(endpoint);
+                case ClientMethod.DELETE:
+                    httpResponse = _httpClient.DeleteAsync(endpoint);
                     break;
             }
 
-            if (httpResponse != null)
-            {
-                using (HttpContent content = httpResponse.Result.Content)
-                {
-                    Task<string> result = content.ReadAsStringAsync();
-                    response = result.Result;
-                }
-            }
-
-            return JsonConvert.DeserializeObject(response);
+            return new ClientResponse(httpResponse);
         }
     }
 }

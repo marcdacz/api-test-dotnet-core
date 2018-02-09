@@ -9,12 +9,9 @@ namespace API.TestFramework.Environment
         public Client Client { get; set; }
 
         [SetUp]
-        public void Setup()
+        public virtual void Setup()
         {
-            Client = new Client
-            {
-                BaseAddress = new Uri(TestContext.Parameters.Get("apiUrl"))
-            };
+             Client = new Client(new Uri(TestContext.Parameters.Get("apiUrl")));
         }
     }
 }

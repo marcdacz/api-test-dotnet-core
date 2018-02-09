@@ -10,9 +10,8 @@ namespace API.TestFramework
         [Test]
         public void DeleteBlogPost()
         {
-            Client.Method = Method.DELETE;
-            var response = Client.Request($"/posts/1");
-            string blogPost = response.ToString();
+            var response = Client.Request($"/posts/1", ClientMethod.DELETE);
+            string blogPost = response.Body;
             blogPost.Should().Be("{}");
         }
     }

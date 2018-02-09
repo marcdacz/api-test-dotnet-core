@@ -1,6 +1,6 @@
 ﻿namespace API.TestFramework.Environment
 {
-    public enum Method
+    public enum ClientMethod
     {
         GET,
         POST,
