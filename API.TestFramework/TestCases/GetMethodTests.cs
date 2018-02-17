@@ -11,20 +11,18 @@ namespace API.TestFramework
         [Test]
         public void GetAllBlogPosts()
         {
-            var response = Client.Request($"/posts").GetDynamic();
-            int blogCount = Enumerable.Count(response);
-            blogCount.Should().BeGreaterOrEqualTo(1);
-            string userId = response[0].userId.ToString();
-            userId.Should().NotBeEmpty();
+            var response = Client.Request($"/posts");
+            var userIds = response.JsonBody.SelectToken("$").Select(x => x.SelectToken("userId").ToObject<string>()).ToList();
+            userIds.Count.Should().BeGreaterOrEqualTo(1);
+            userIds.FirstOrDefault().Should().NotBeEmpty();
         }
 
         [Test]
         public void GetBlogPostById()
         {
             string expectedId = "1";
-            var response = Client.Request($"/posts/{expectedId}").GetDynamic();
-            string actualId = response.id.ToString();
-            actualId.Should().Be(expectedId);
+            var response = Client.Request($"/posts/{expectedId}");
+            response.JsonPath<string>("id").Should().Be(expectedId);
         }
     }
 }

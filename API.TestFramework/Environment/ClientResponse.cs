@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -10,11 +10,12 @@ namespace API.TestFramework.Environment
     {
         public HttpStatusCode StatusCode { get; private set; }
         public HttpResponseHeaders Headers { get; private set; }
-        public string Body { get; private set; }
+        public string StringBody { get; private set; }
+        public JToken JsonBody { get; private set; }
 
         public ClientResponse(Task<HttpResponseMessage> response)
         {
-            Body = string.Empty;
+            StringBody = string.Empty;
 
             if (response != null)
             {
@@ -24,19 +25,15 @@ namespace API.TestFramework.Environment
                 using (HttpContent httpContent = response.Result.Content)
                 {
                     Task<string> contentBody = httpContent.ReadAsStringAsync();
-                    Body = contentBody.Result;
+                    StringBody = contentBody.Result;
+                    JsonBody = JToken.Parse(StringBody);
                 }
             }
         }
 
-        public dynamic GetDynamic()
+        public T JsonPath<T>(string path = "$")
         {
-            return JsonConvert.DeserializeObject(Body);
-        }
-
-        public T GetGeneric<T>()
-        {
-            return JsonConvert.DeserializeObject<T>(Body);
+            return JsonBody.SelectToken(path).ToObject<T>();
         }
     }
 }

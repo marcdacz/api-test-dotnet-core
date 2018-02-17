@@ -1,7 +1,6 @@
 ﻿using API.TestFramework.Environment;
 using FluentAssertions;
 using NUnit.Framework;
-using System;
 
 namespace API.TestFramework
 {
@@ -12,10 +11,8 @@ namespace API.TestFramework
         public void CreateBlogPost()
         {
             var data = new { userId = 1, title = "my awesome post", body = "this is my awesome post!" };
-            var response = Client.Request($"/posts", ClientMethod.POST, data.AsJson()).GetDynamic();
-            string blogIdStr = response.id.ToString();
-            int blogId = Convert.ToInt32(blogIdStr);
-            blogId.Should().BeGreaterThan(0);
+            var response = Client.Request($"/posts", ClientMethod.POST, data.AsJson());
+            response.JsonPath<int>("id").Should().BeGreaterThan(0);
         }
     }
 }

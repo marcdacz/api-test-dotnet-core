@@ -11,7 +11,7 @@ namespace API.TestFramework
         public void DeleteBlogPost()
         {
             var response = Client.Request($"/posts/1", ClientMethod.DELETE);
-            string blogPost = response.Body;
+            string blogPost = response.StringBody;
             blogPost.Should().Be("{}");
         }
     }
